@@ -1,5 +1,8 @@
 from django.urls import path
-from .views import api_home,get_all_products,get_products, save_product,ProductDetailAPIView,ProductCreateAPIView,ProductListAPIView,ProductUpdateAPIView,ProductDestroyAPIView
+from .views import (api_home,get_all_products,get_products, save_product,ProductDetailAPIView,
+                ProductCreateAPIView,ProductListAPIView,ProductUpdateAPIView,ProductDestroyAPIView,
+                ProductMixinView
+                )
 
 urlpatterns = [
     path("",ProductListAPIView.as_view()),
@@ -9,6 +12,9 @@ urlpatterns = [
     path('<int:id>/',ProductDetailAPIView.as_view()),
     path('create', ProductCreateAPIView.as_view()),
     path('update/<int:pk>',ProductUpdateAPIView.as_view()),
-    path('delete/<int:pk>',ProductDestroyAPIView.as_view())
+    path('delete/<int:pk>',ProductDestroyAPIView.as_view()),
+    path('mixin/all/<int:pk>',ProductMixinView.as_view()),
+    path('mixin/all',ProductMixinView.as_view()),
+    path('mixin/delete/<int:pk>',ProductMixinView.as_view())
 ]
 

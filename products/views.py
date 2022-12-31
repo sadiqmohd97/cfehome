@@ -11,7 +11,7 @@ from django.forms.models import model_to_dict
 
 from rest_framework.response import Response 
 from rest_framework.decorators import api_view
-from rest_framework import generics
+from rest_framework import generics, mixins
 # Create your views here.
 
 def api_home(request,*args, **kwargs):
@@ -116,4 +116,33 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
     def perform_destroy(self, instance:Product):
         print(instance)
         return super().perform_destroy(instance)
+    
+
+# class based views
+
+class ProductMixinView( mixins.ListModelMixin, generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+
+    def get(self,request,*args, **kwargs):
+        print(args,kwargs)
+        pk = kwargs.get('pk')
+        if pk is not None:
+            return self.retrieve(request,*args, **kwargs)
+        else:
+            return self.list(request,*args, **kwargs) 
+    
+    def post(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+
+
+
+
+
+        
+
+
+
     
