@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse , HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 import time
-
+from .permissions import IsStaffEditorPermission
 from .serializers import ProductSerializer
 
 from .models import Product
@@ -11,8 +11,11 @@ from django.forms.models import model_to_dict
 
 from rest_framework.response import Response 
 from rest_framework.decorators import api_view
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, permissions,authentication
 # Create your views here.
+import logging
+
+LOGGER = logging.getLogger()
 
 def api_home(request,*args, **kwargs):
     model_data = Product.objects.all().first()
@@ -56,6 +59,7 @@ def get_products(request,*args, **kwargs):
 
 @api_view(['POST'])  
 def save_product(request:HttpRequest,*args, **kwargs):
+    LOGGER.error('save_product is started')
     data = request.data
     serializer = ProductSerializer(data = request.data)
     if serializer.is_valid(raise_exception=True):
@@ -67,13 +71,17 @@ def save_product(request:HttpRequest,*args, **kwargs):
         print("Invalid Data")
     print(data)
     print(type(data))
+    LOGGER.error('save_product is ended')
+
     return JsonResponse(serializer.data)
 
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    lookup_field = 'id'
+    lookup_field = 'pk'
+    permission_classes = [IsStaffEditorPermission]
+    authentication_classes = [authentication.SessionAuthentication]
 
 
 
@@ -135,6 +143,8 @@ class ProductMixinView( mixins.ListModelMixin, generics.GenericAPIView,mixins.Re
     
     def post(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
 
 
 
